@@ -108,6 +108,13 @@ button:hover {
     transform: translateY(1px);
 }
 
+.primary-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+
 .phase-header {
     text-align: center;
     margin-bottom: 20px;
@@ -229,13 +236,6 @@ button:hover {
     transition: color 0.2s;
 }
 
-/* 
-   Logic for left-to-right fill:
-   We color ALL stars gold by default when the parent has a class,
-   or when hovering. Then we use specific rules to 'un-color' the ones after.
-   
-   Actually, the simplest robust way without flex-reverse hacks is:
-*/
 
 .star-rating span.active {
     color: #ffc107;

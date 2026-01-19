@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         star.addEventListener('click', function () {
             ratingGroup.dataset.selectedValue = this.dataset.value;
             updateStars(this.dataset.value);
+            restartButton.disabled = false;
         });
     });
 
@@ -151,8 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
             originalTextDisplay.textContent = currentArticleContent;
             userRecallDisplay.textContent = recallInput.value;
         } else if (newState === AppState.SCORE) {
-            // Reset stars
+            // Reset stars and disable restart button until graded
+            delete ratingGroup.dataset.selectedValue;
             document.querySelectorAll('.star-rating span').forEach(s => s.classList.remove('active'));
+            restartButton.disabled = true;
         }
     }
 
