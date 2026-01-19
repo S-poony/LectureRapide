@@ -261,6 +261,8 @@ button:hover {
     overflow-x: auto;
     padding: 10px 5px;
     scrollbar-width: thin;
+    align-items: flex-start;
+    /* Prevent others from stretching when one expands */
 }
 
 .history-marker {
