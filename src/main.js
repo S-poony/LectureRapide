@@ -18,17 +18,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_RETRIES = 3;
 
     /**
-     * Updates the button text to reflect the current slider value and language
+     * Updates the display to reflect the current slider value
      */
-    function updateButtonText() {
-        const wordCount = wordSlider.value;
-        wordCountDisplay.textContent = wordCount;
-        const langName = languageSelect.options[languageSelect.selectedIndex].text;
+    function updateFromSlider() {
+        wordCountDisplay.value = wordSlider.value;
     }
 
-    // Add event listeners for slider and language changes
-    wordSlider.addEventListener('input', updateButtonText);
-    languageSelect.addEventListener('change', updateButtonText);
+    /**
+     * Updates the slider to reflect the input value, with validation
+     */
+    function updateFromInput() {
+        let value = parseInt(wordCountDisplay.value) || 0;
+        const min = parseInt(wordSlider.min);
+        const max = parseInt(wordSlider.max);
+
+        // Clamp value to min/max
+        value = Math.max(min, Math.min(max, value));
+        wordCountDisplay.value = value;
+        wordSlider.value = value;
+    }
+
+    // Add event listeners for slider and input changes
+    wordSlider.addEventListener('input', updateFromSlider);
+    wordCountDisplay.addEventListener('input', updateFromInput);
+    wordCountDisplay.addEventListener('blur', updateFromInput);
+    languageSelect.addEventListener('change', () => { });
 
     /**
      * Determines the Wikipedia API URL based on user selection.

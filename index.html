@@ -77,7 +77,8 @@
 
         <!-- Word count slider -->
         <div class="word-count-slider">
-            <label for="wordSlider">Number of words: <span id="wordCountDisplay">250</span></label>
+            <label for="wordSlider">Number of words: <input type="number" id="wordCountDisplay" value="250" min="0"
+                    max="1000"></label>
             <input type="range" id="wordSlider" min="0" max="1000" value="250">
         </div>
 

@@ -70,6 +70,26 @@ h1 {
 #wordCountDisplay {
     color: #007bff;
     font-weight: bold;
+    width: 60px;
+    text-align: center;
+    border: 1px solid transparent;
+    background: transparent;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#wordCountDisplay:hover {
+    border-color: #ccc;
+    background: #f8f9fa;
+}
+
+#wordCountDisplay:focus {
+    border-color: #007bff;
+    background: #fff;
+    outline: none;
 }
 
 button {
