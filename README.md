@@ -1,4 +1,8 @@
-# Déroulement de l'expérience utilisateur (pas encore réalisé)
+# Lecture Rapide
+
+Un petit jeu pour apprendre à lire plus vite. 
+
+# Déroulement de l'expérience utilisateur
 
 - l'utilisateur sélectionne sa langue, la longueur du text désiré, et clique sur un bouton pour commencer 
 - l'application affiche un texte aléatoire
