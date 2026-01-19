@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const goToScoreButton = document.getElementById('goToScoreButton');
     const restartButton = document.getElementById('restartButton');
     const starRatings = document.querySelectorAll('.star-rating');
+    const readingTimeMessage = document.getElementById('readingTimeMessage');
 
     // === STATE ===
     const AppState = {
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentState = AppState.SETUP;
     let currentArticleTitle = '';
     let currentArticleContent = '';
+    let startTime = 0;
 
     // === CONFIG ===
     const API_PARAMS = {
@@ -142,8 +144,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // State-specific logic
         if (newState === AppState.READING) {
+            startTime = Date.now();
             window.scrollTo(0, 0);
         } else if (newState === AppState.RECALL) {
+            const endTime = Date.now();
+            const seconds = Math.round((endTime - startTime) / 1000);
+            readingTimeMessage.textContent = `You read the text in ${seconds} seconds, write everything you remember now`;
+
             recallInput.value = ''; // Clear previous input
             recallInput.focus();
             window.scrollTo(0, 0);
