@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Determine the API URL for this request
         const apiUrl = getCurrentApiUrl();
-        const wordLimit = parseInt(wordSlider.value);
+        const charLimit = parseInt(wordSlider.value);
 
         for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
             try {
@@ -83,14 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error("Unable to get a random title.");
                 }
 
-                // --- Step 2: Get the content of this article ---
-                const content = await fetchArticleContent(apiUrl, randomTitle, attempt);
+                // --- Step 2: Get the content of this article (with character limit) ---
+                const content = await fetchArticleContent(apiUrl, randomTitle, charLimit);
                 if (!content) {
                     throw new Error(`Content not found for: ${randomTitle}`);
                 }
 
                 // --- Step 3: Process and display the content ---
-                processAndDisplayContent(randomTitle, content, wordLimit);
+                processAndDisplayContent(randomTitle, content);
                 statusDiv.textContent = ''; // Clear status after successful load
                 break; // Success, exit the retry loop
 
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} attempt The attempt number.
      * @returns {Promise<string|null>} The text content or null.
      */
-    async function fetchArticleContent(apiUrl, title, attempt) {
+    async function fetchArticleContent(apiUrl, title, charLimit) {
         const params = new URLSearchParams({
             ...API_PARAMS,
             prop: 'extracts',
@@ -152,12 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // The key parameter: returns plain text without HTML/Wiki tags
             explaintext: 1,
             redirects: 1, // Follow redirects
-            // Request more characters to ensure we have enough content
-            // Average word length ~5 chars + 1 space = 6 chars per word
-            exchars: 20000
+            // Use the user-specified character limit
+            exchars: charLimit
         });
 
         const url = `${apiUrl}?${params.toString()}`;
+        console.log('API URL:', url);
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -165,27 +165,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const data = await response.json();
+        console.log('Full API response:', data);
+
         const pages = data.query?.pages;
 
         if (pages) {
             const pageId = Object.keys(pages)[0];
-            return pages[pageId].extract || null;
+            const page = pages[pageId];
+            console.log('Page data:', page);
+
+            return page.extract || null;
         }
         return null;
     }
 
     /**
-     * Processes raw text to get the desired word count.
+     * Processes raw text and displays it.
      * @param {string} title The article title.
      * @param {string} rawContent The raw text content.
-     * @param {number} wordLimit The maximum number of words to display.
      */
-    function processAndDisplayContent(title, rawContent, wordLimit) {
-        console.log('=== Word Count Debug ===');
-        console.log('Requested word limit:', wordLimit);
-        console.log('Raw content length (chars):', rawContent.length);
-        console.log('Raw content preview:', rawContent.substring(0, 500));
-
+    function processAndDisplayContent(title, rawContent) {
         // Remove empty lines, excessive line breaks, and reference brackets
         let cleanedText = rawContent
             .replace(/\n\s*\n/g, '\n\n') // Replace multiple line breaks with two
@@ -197,27 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cleanedText = cleanedText.substring(cleanedText.indexOf('\n') + 1).trim();
         }
 
-        console.log('Cleaned content length (chars):', cleanedText.length);
-
-        // Split text into words for counting and limiting
-        const words = cleanedText.split(/\s+/).filter(word => word.length > 0);
-
-        console.log('Total words available:', words.length);
-
-        // Take the first N words
-        const limitedWords = words.slice(0, wordLimit);
-        const finalContent = limitedWords.join(' ');
-
-        console.log('Words displayed:', limitedWords.length);
-        if (words.length < wordLimit) {
-            console.warn('⚠️ Article has fewer words than requested!');
-            console.log('Full cleaned content:', cleanedText);
-        }
-        console.log('========================');
-
         // Display
         titleDiv.textContent = title;
-        textDiv.textContent = finalContent + (words.length > wordLimit ? '...' : '');
+        textDiv.textContent = cleanedText;
     }
 
     // Bind the function to the button
