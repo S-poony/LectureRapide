@@ -131,20 +131,6 @@ button:hover {
     font-size: 0.9em;
 }
 
-.mobile-hint {
-    display: none;
-    text-align: center;
-    color: #888;
-    font-size: 0.9em;
-    margin-top: 20px;
-}
-
-@media (max-width: 768px) {
-    .mobile-hint {
-        display: block;
-    }
-}
-
 /* RECALL PHASE */
 #recallInput {
     width: 100%;
