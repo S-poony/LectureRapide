@@ -97,20 +97,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Star Rating Logic
-    starRatings.forEach(ratingGroup => {
-        const stars = ratingGroup.querySelectorAll('span');
+    // Star Rating Logic
+    const ratingGroup = document.querySelector('.star-rating');
+    const stars = ratingGroup.querySelectorAll('span');
 
-        stars.forEach(star => {
-            star.addEventListener('click', function () {
-                const value = this.dataset.value;
-                // Update visual state (fill all stars up to clicked one)
-                stars.forEach(s => {
-                    s.classList.toggle('active', s.dataset.value <= value);
-                });
-            });
-
-            // Hover effect handled purely in CSS mostly, but could enhance here if needed
+    function updateStars(value) {
+        stars.forEach(s => {
+            s.classList.toggle('active', parseInt(s.dataset.value) <= parseInt(value));
         });
+    }
+
+    stars.forEach(star => {
+        // Hover effect
+        star.addEventListener('mouseenter', function () {
+            updateStars(this.dataset.value);
+        });
+
+        // Click to set permanent value
+        star.addEventListener('click', function () {
+            ratingGroup.dataset.selectedValue = this.dataset.value;
+            updateStars(this.dataset.value);
+        });
+    });
+
+    // Reset to selected value on mouse leave
+    ratingGroup.addEventListener('mouseleave', function () {
+        const selected = this.dataset.selectedValue || 0;
+        updateStars(selected);
     });
 
     // === FUNCTIONS ===

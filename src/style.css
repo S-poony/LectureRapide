@@ -266,7 +266,8 @@ button:hover {
 }
 
 .star-rating {
-    font-size: 2em;
+    font-size: 3em;
+    /* Larger stars */
     color: #ddd;
     cursor: pointer;
     display: inline-block;
@@ -276,10 +277,13 @@ button:hover {
     transition: color 0.2s;
 }
 
-.star-rating span:hover,
-.star-rating span:hover~span {
-    color: #ffc107;
-}
+/* 
+   Logic for left-to-right fill:
+   We color ALL stars gold by default when the parent has a class,
+   or when hovering. Then we use specific rules to 'un-color' the ones after.
+   
+   Actually, the simplest robust way without flex-reverse hacks is:
+*/
 
 .star-rating span.active {
     color: #ffc107;

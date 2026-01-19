@@ -37,8 +37,8 @@
             <!-- Character count slider -->
             <div class="word-count-slider">
                 <label for="wordSlider">Number of characters: <input type="number" id="wordCountDisplay" value="600"
-                        min="0" max="5000"></label>
-                <input type="range" id="wordSlider" min="0" max="5000" value="600">
+                        min="0" max="1200"></label>
+                <input type="range" id="wordSlider" min="0" max="1200" value="600">
             </div>
 
             <button id="loadButton" class="primary-btn">Start Training</button>
@@ -96,19 +96,11 @@
 
             <div class="score-container">
                 <div class="rating-group">
-                    <label>Completeness (Did you get all main points?)</label>
-                    <div class="star-rating" data-category="completeness">
+                    <div class="star-rating" data-category="general">
                         <span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span
                             data-value="4">★</span><span data-value="5">★</span>
                     </div>
-                </div>
-
-                <div class="rating-group">
-                    <label>Accuracy (Were details correct?)</label>
-                    <div class="star-rating" data-category="accuracy">
-                        <span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span
-                            data-value="4">★</span><span data-value="5">★</span>
-                    </div>
+                    <div class="rating-value"></div>
                 </div>
             </div>
 
