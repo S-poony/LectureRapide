@@ -151,7 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
             titles: title,
             // The key parameter: returns plain text without HTML/Wiki tags
             explaintext: 1,
-            redirects: 1 // Follow redirects
+            redirects: 1, // Follow redirects
+            // Request more characters to ensure we have enough content
+            // Average word length ~5 chars + 1 space = 6 chars per word
+            exchars: 20000
         });
 
         const url = `${apiUrl}?${params.toString()}`;
@@ -178,6 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number} wordLimit The maximum number of words to display.
      */
     function processAndDisplayContent(title, rawContent, wordLimit) {
+        console.log('=== Word Count Debug ===');
+        console.log('Requested word limit:', wordLimit);
+        console.log('Raw content length (chars):', rawContent.length);
+        console.log('Raw content preview:', rawContent.substring(0, 500));
+
         // Remove empty lines, excessive line breaks, and reference brackets
         let cleanedText = rawContent
             .replace(/\n\s*\n/g, '\n\n') // Replace multiple line breaks with two
@@ -189,12 +197,23 @@ document.addEventListener('DOMContentLoaded', () => {
             cleanedText = cleanedText.substring(cleanedText.indexOf('\n') + 1).trim();
         }
 
+        console.log('Cleaned content length (chars):', cleanedText.length);
+
         // Split text into words for counting and limiting
         const words = cleanedText.split(/\s+/).filter(word => word.length > 0);
+
+        console.log('Total words available:', words.length);
 
         // Take the first N words
         const limitedWords = words.slice(0, wordLimit);
         const finalContent = limitedWords.join(' ');
+
+        console.log('Words displayed:', limitedWords.length);
+        if (words.length < wordLimit) {
+            console.warn('⚠️ Article has fewer words than requested!');
+            console.log('Full cleaned content:', cleanedText);
+        }
+        console.log('========================');
 
         // Display
         titleDiv.textContent = title;
@@ -204,6 +223,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Bind the function to the button
     loadButton.addEventListener('click', fetchRandomArticle);
 
-    // Initialize button text on load
-    updateButtonText();
 });
