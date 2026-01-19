@@ -332,15 +332,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sessionHistory.length === 0) return;
 
         const headers = ['Attempt', 'Date', 'Article', 'Characters', 'Time (s)', 'Grade (out of 5)', 'Score (Grade/Time)'];
-        const rows = sessionHistory.map(s => [
-            s.attempt,
-            `"${s.timestamp}"`,
-            `"${s.title}"`,
-            s.chars,
-            s.time.toFixed(2),
-            s.grade,
-            s.score.toFixed(4)
-        ]);
+        const rows = sessionHistory.map(s => {
+            const displayScore = s.score || (s.time > 0 ? s.grade / s.time : 0);
+            const displayTime = s.time || 0;
+            return [
+                s.attempt,
+                `"${s.timestamp}"`,
+                `"${s.title}"`,
+                s.chars,
+                displayTime.toFixed(2),
+                s.grade,
+                displayScore.toFixed(4)
+            ];
+        });
 
         const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

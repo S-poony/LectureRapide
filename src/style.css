@@ -301,15 +301,30 @@ button:hover {
 }
 
 .text-link-btn {
+    display: inline-block;
+    /* Override generic block */
+    width: auto;
+    /* Override generic 100% */
     background: none;
     border: none;
     color: #007bff;
     text-decoration: underline;
     cursor: pointer;
     font-size: 0.9em;
-    padding: 0;
+    padding: 5px 10px;
+    margin: 0;
+    /* Override generic margin */
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 4px;
 }
 
 .text-link-btn:hover {
     color: #0056b3;
+    background-color: rgba(0, 123, 255, 0.1);
+    /* Subtle highlight instead of full color */
+}
+
+.history-footer {
+    text-align: center;
+    margin-top: 10px;
 }
