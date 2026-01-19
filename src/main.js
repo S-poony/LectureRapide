@@ -85,14 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const doneReadingButton = document.getElementById('doneReadingButton');
 
-    // MOBILE specific: Tap to finish reading (optional, button is better but keeping for flexibility)
-    phases.reading.addEventListener('click', (e) => {
-        // Only trigger if clicking the main reading area, not metadata links if any existed
-        if (currentState === AppState.READING && e.target.id !== 'doneReadingButton') {
-            transitionTo(AppState.RECALL);
-        }
-    });
-
     doneReadingButton.addEventListener('click', () => {
         if (currentState === AppState.READING) {
             transitionTo(AppState.RECALL);
