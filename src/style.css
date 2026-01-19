@@ -126,3 +126,161 @@ button:hover {
     line-height: 1.6;
     text-align: justify;
 }
+
+/* CSS UTILITIES */
+.hidden {
+    display: none !important;
+}
+
+.primary-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    margin: 20px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.primary-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.primary-btn:active {
+    transform: translateY(1px);
+}
+
+.phase-header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.key-badge {
+    background: #333;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.mobile-hint {
+    display: none;
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .mobile-hint {
+        display: block;
+    }
+}
+
+/* RECALL PHASE */
+#recallInput {
+    width: 100%;
+    min-height: 400px;
+    padding: 15px;
+    font-size: 1.1em;
+    font-family: inherit;
+    line-height: 1.6;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#recallInput:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* COMPARE PHASE */
+.comparison-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.comparison-column {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.comparison-column h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    text-align: center;
+    color: #444;
+}
+
+#originalTextDisplay,
+#userRecallDisplay {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    text-align: left;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .comparison-container {
+        flex-direction: column;
+    }
+}
+
+/* SCORE PHASE */
+.score-container {
+    text-align: center;
+    padding: 20px;
+    background: #f9f9faf0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.rating-group {
+    margin-bottom: 25px;
+}
+
+.rating-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.star-rating {
+    font-size: 2em;
+    color: #ddd;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.star-rating span {
+    transition: color 0.2s;
+}
+
+.star-rating span:hover,
+.star-rating span:hover~span {
+    color: #ffc107;
+}
+
+.star-rating span.active {
+    color: #ffc107;
+}

@@ -12,83 +12,108 @@
     <div class="container">
         <h1>Speed Reading Training</h1>
 
-        <!-- Language dropdown selector -->
-        <div class="language-selector">
-            <label for="languageSelect">Language:</label>
-            <select id="languageSelect">
-                <option value="en">English</option>
-                <option value="fr">Français (French)</option>
-                <option value="de">Deutsch (German)</option>
-                <option value="es">Español (Spanish)</option>
-                <option value="it">Italiano (Italian)</option>
-                <option value="nl">Nederlands (Dutch)</option>
-                <option value="pt">Português (Portuguese)</option>
-                <option value="ru">Русский (Russian)</option>
-                <option value="ja">日本語 (Japanese)</option>
-                <option value="zh">中文 (Chinese)</option>
-                <option value="ar">العربية (Arabic)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="sv">Svenska (Swedish)</option>
-                <option value="pl">Polski (Polish)</option>
-                <option value="no">Norsk (Norwegian)</option>
-                <option value="fi">Suomi (Finnish)</option>
-                <option value="da">Dansk (Danish)</option>
-                <option value="he">עברית (Hebrew)</option>
-                <option value="ko">한국어 (Korean)</option>
-                <option value="tr">Türkçe (Turkish)</option>
-                <option value="uk">Українська (Ukrainian)</option>
-                <option value="cs">Čeština (Czech)</option>
-                <option value="hu">Magyar (Hungarian)</option>
-                <option value="ro">Română (Romanian)</option>
-                <option value="th">ไทย (Thai)</option>
-                <option value="fa">فارسی (Persian)</option>
-                <option value="el">Ελληνικά (Greek)</option>
-                <option value="bn">বাংলা (Bengali)</option>
-                <option value="id">Bahasa Indonesia (Indonesian)</option>
-                <option value="ms">Bahasa Melayu (Malay)</option>
-                <option value="vi">Tiếng Việt (Vietnamese)</option>
-                <option value="ca">Català (Catalan)</option>
-                <option value="sr">Српски (Serbian)</option>
-                <option value="hr">Hrvatski (Croatian)</option>
-                <option value="sk">Slovenčina (Slovak)</option>
-                <option value="sl">Slovenščina (Slovenian)</option>
-                <option value="et">Eesti (Estonian)</option>
-                <option value="lv">Latviešu (Latvian)</option>
-                <option value="lt">Lietuvių (Lithuanian)</option>
-                <option value="bg">Български (Bulgarian)</option>
-                <option value="mk">Македонски (Macedonian)</option>
-                <option value="sq">Shqip (Albanian)</option>
-                <option value="af">Afrikaans</option>
-                <option value="sw">Kiswahili (Swahili)</option>
-                <option value="ur">اردو (Urdu)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-                <option value="te">తెలుగు (Telugu)</option>
-                <option value="mr">मराठी (Marathi)</option>
-                <option value="gu">ગુજરાતી (Gujarati)</option>
-                <option value="kn">ಕನ್ನಡ (Kannada)</option>
-                <option value="ml">മലയാളം (Malayalam)</option>
-                <option value="si">සිංහල (Sinhala)</option>
-                <option value="ne">नेपाली (Nepali)</option>
-                <option value="my">မြန်မာဘာသာ (Burmese)</option>
-                <option value="km">ខ្មែរ (Khmer)</option>
-                <option value="lo">ລາວ (Lao)</option>
-            </select>
+        <!-- PHASE 1: SETUP -->
+        <div id="setup-phase">
+            <!-- Language dropdown selector -->
+            <div class="language-selector">
+                <label for="languageSelect">Language:</label>
+                <select id="languageSelect">
+                    <!-- Options populated by JS or static HTML -->
+                    <option value="en">English</option>
+                    <option value="fr" selected>Français (French)</option>
+                    <option value="de">Deutsch (German)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="it">Italiano (Italian)</option>
+                    <option value="ja">日本語 (Japanese)</option>
+                    <option value="ko">한국어 (Korean)</option>
+                    <option value="zh">中文 (Chinese)</option>
+                    <option value="ru">Русский (Russian)</option>
+                    <option value="pt">Português (Portuguese)</option>
+                    <option value="nl">Nederlands (Dutch)</option>
+                    <!-- Add other languages as needed -->
+                </select>
+            </div>
+
+            <!-- Character count slider -->
+            <div class="word-count-slider">
+                <label for="wordSlider">Number of characters: <input type="number" id="wordCountDisplay" value="600"
+                        min="0" max="5000"></label>
+                <input type="range" id="wordSlider" min="0" max="5000" value="600">
+            </div>
+
+            <button id="loadButton" class="primary-btn">Start Training</button>
+            <div id="status"></div>
         </div>
 
-        <!-- Character count slider -->
-        <div class="word-count-slider">
-            <label for="wordSlider">Number of characters: <input type="number" id="wordCountDisplay" value="600" min="0"
-                    max="1200"></label>
-            <input type="range" id="wordSlider" min="0" max="1200" value="600">
+        <!-- PHASE 2: READING -->
+        <div id="reading-phase" class="hidden">
+            <div class="phase-header">
+                <h2>Read the text carefully</h2>
+                <p>Press <span class="key-badge">SPACE</span> when you are done reading.</p>
+            </div>
+            <div id="content">
+                <div id="title"></div>
+                <div id="text"></div>
+            </div>
+            <p class="mobile-hint">Tap anywhere if you are on mobile</p>
         </div>
 
-        <button id="loadButton">Load a new random article</button>
-
-        <div id="content">
-            <div id="title"></div>
-            <div id="text"></div>
+        <!-- PHASE 3: RECALL -->
+        <div id="recall-phase" class="hidden">
+            <div class="phase-header">
+                <h2>Recall</h2>
+                <p>Write everything you remember from the text.</p>
+            </div>
+            <textarea id="recallInput" placeholder="Start typing here..."></textarea>
+            <button id="finishRecallButton" class="primary-btn">I'm done writing</button>
         </div>
-        <div id="status"></div>
+
+        <!-- PHASE 4: COMPARE -->
+        <div id="compare-phase" class="hidden">
+            <div class="phase-header">
+                <h2>Comparison</h2>
+                <p>Compare your recall with the original text.</p>
+            </div>
+            <div class="comparison-container">
+                <div class="comparison-column">
+                    <h3>Original Text</h3>
+                    <div id="originalTextDisplay"></div>
+                </div>
+                <div class="comparison-column">
+                    <h3>Your Recall</h3>
+                    <div id="userRecallDisplay"></div>
+                </div>
+            </div>
+            <button id="goToScoreButton" class="primary-btn">Continue to Self-Assessment</button>
+        </div>
+
+        <!-- PHASE 5: SCORE -->
+        <div id="score-phase" class="hidden">
+            <div class="phase-header">
+                <h2>Self Assessment</h2>
+                <p>How well did you remember the text?</p>
+            </div>
+
+            <div class="score-container">
+                <div class="rating-group">
+                    <label>Completeness (Did you get all main points?)</label>
+                    <div class="star-rating" data-category="completeness">
+                        <span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span
+                            data-value="4">★</span><span data-value="5">★</span>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label>Accuracy (Were details correct?)</label>
+                    <div class="star-rating" data-category="accuracy">
+                        <span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span
+                            data-value="4">★</span><span data-value="5">★</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="restartButton" class="primary-btn">Start New Exercise</button>
+        </div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

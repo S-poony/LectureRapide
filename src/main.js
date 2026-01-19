@@ -1,6 +1,17 @@
 import './style.css';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // === DOM ELEMENTS ===
+    // Sections
+    const phases = {
+        setup: document.getElementById('setup-phase'),
+        reading: document.getElementById('reading-phase'),
+        recall: document.getElementById('recall-phase'),
+        compare: document.getElementById('compare-phase'),
+        score: document.getElementById('score-phase')
+    };
+
+    // Inputs & Displays
     const loadButton = document.getElementById('loadButton');
     const titleDiv = document.getElementById('title');
     const textDiv = document.getElementById('text');
@@ -8,113 +19,187 @@ document.addEventListener('DOMContentLoaded', () => {
     const languageSelect = document.getElementById('languageSelect');
     const wordSlider = document.getElementById('wordSlider');
     const wordCountDisplay = document.getElementById('wordCountDisplay');
+    const recallInput = document.getElementById('recallInput');
+    const finishRecallButton = document.getElementById('finishRecallButton');
+    const originalTextDisplay = document.getElementById('originalTextDisplay');
+    const userRecallDisplay = document.getElementById('userRecallDisplay');
+    const goToScoreButton = document.getElementById('goToScoreButton');
+    const restartButton = document.getElementById('restartButton');
+    const starRatings = document.querySelectorAll('.star-rating');
 
-    // Configuration for common API parameters
+    // === STATE ===
+    const AppState = {
+        SETUP: 'setup',
+        READING: 'reading',
+        RECALL: 'recall',
+        COMPARE: 'compare',
+        SCORE: 'score'
+    };
+
+    let currentState = AppState.SETUP;
+    let currentArticleTitle = '';
+    let currentArticleContent = '';
+
+    // === CONFIG ===
     const API_PARAMS = {
         format: 'json',
         action: 'query',
-        origin: '*' // Required for Cross-Origin requests (CORS)
+        origin: '*'
     };
     const MAX_RETRIES = 3;
 
-    /**
-     * Updates the display to reflect the current slider value
-     */
-    function updateFromSlider() {
-        wordCountDisplay.value = wordSlider.value;
-    }
+    // === EVENT LISTENERS ===
 
-    /**
-     * Updates the slider to reflect the input value, with validation
-     */
+    // Slider & Input Sync
+    function updateFromSlider() { wordCountDisplay.value = wordSlider.value; }
     function updateFromInput() {
         let value = parseInt(wordCountDisplay.value) || 0;
         const min = parseInt(wordSlider.min);
         const max = parseInt(wordSlider.max);
-
-        // Clamp value to min/max
         value = Math.max(min, Math.min(max, value));
         wordCountDisplay.value = value;
         wordSlider.value = value;
     }
-
-    // Add event listeners for slider and input changes
     wordSlider.addEventListener('input', updateFromSlider);
     wordCountDisplay.addEventListener('input', updateFromInput);
     wordCountDisplay.addEventListener('blur', updateFromInput);
-    languageSelect.addEventListener('change', () => { });
+
+    // Buttons
+    loadButton.addEventListener('click', startReadingSession);
+
+    finishRecallButton.addEventListener('click', () => {
+        transitionTo(AppState.COMPARE);
+    });
+
+    goToScoreButton.addEventListener('click', () => {
+        transitionTo(AppState.SCORE);
+    });
+
+    restartButton.addEventListener('click', () => {
+        resetApp();
+        transitionTo(AppState.SETUP);
+    });
+
+    // Keyboard Navigation (Space to finish reading)
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && currentState === AppState.READING) {
+            e.preventDefault(); // Prevent scrolling
+            transitionTo(AppState.RECALL);
+        }
+    });
+
+    // Mobile specific: Tap to finish reading
+    phases.reading.addEventListener('click', (e) => {
+        // Only trigger if clicking the main reading area, not metadata links if any existed
+        if (currentState === AppState.READING) {
+            transitionTo(AppState.RECALL);
+        }
+    });
+
+    // Star Rating Logic
+    starRatings.forEach(ratingGroup => {
+        const stars = ratingGroup.querySelectorAll('span');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const value = this.dataset.value;
+                // Update visual state (fill all stars up to clicked one)
+                stars.forEach(s => {
+                    s.classList.toggle('active', s.dataset.value <= value);
+                });
+            });
+
+            // Hover effect handled purely in CSS mostly, but could enhance here if needed
+        });
+    });
+
+    // === FUNCTIONS ===
 
     /**
-     * Determines the Wikipedia API URL based on user selection.
-     * @returns {string} The API URL for the selected language.
+     * Handles state transitions and UI updates
      */
-    function getCurrentApiUrl() {
-        const langCode = languageSelect.value;
-        return `https://${langCode}.wikipedia.org/w/api.php`;
+    function transitionTo(newState) {
+        currentState = newState;
+
+        // Hide all phases
+        Object.values(phases).forEach(el => el.classList.add('hidden'));
+
+        // Show target phase
+        phases[newState].classList.remove('hidden');
+
+        // State-specific logic
+        if (newState === AppState.READING) {
+            window.scrollTo(0, 0);
+        } else if (newState === AppState.RECALL) {
+            recallInput.value = ''; // Clear previous input
+            recallInput.focus();
+            window.scrollTo(0, 0);
+        } else if (newState === AppState.COMPARE) {
+            originalTextDisplay.textContent = currentArticleContent;
+            userRecallDisplay.textContent = recallInput.value;
+        } else if (newState === AppState.SCORE) {
+            // Reset stars
+            document.querySelectorAll('.star-rating span').forEach(s => s.classList.remove('active'));
+        }
     }
 
-    /**
-     * Utility function for waiting with exponential backoff.
-     * @param {number} attempt The attempt number.
-     */
-    function delay(attempt) {
-        return new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
-    }
-
-    /**
-     * Main function to fetch a random article.
-     */
-    async function fetchRandomArticle() {
-        // 1. Update interface state
+    function resetApp() {
+        currentArticleTitle = '';
+        currentArticleContent = '';
         titleDiv.textContent = '';
         textDiv.textContent = '';
-        statusDiv.textContent = 'Loading in progress...';
-        loadButton.disabled = true;
-
-        // Determine the API URL for this request
-        const apiUrl = getCurrentApiUrl();
-        const charLimit = parseInt(wordSlider.value);
-
-        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            try {
-                // --- Step 1: Get a random page title ---
-                const randomTitle = await fetchRandomTitle(apiUrl, attempt);
-                if (!randomTitle) {
-                    throw new Error("Unable to get a random title.");
-                }
-
-                // --- Step 2: Get the content of this article (with character limit) ---
-                const content = await fetchArticleContent(apiUrl, randomTitle, charLimit);
-                if (!content) {
-                    throw new Error(`Content not found for: ${randomTitle}`);
-                }
-
-                // --- Step 3: Process and display the content ---
-                processAndDisplayContent(randomTitle, content);
-                statusDiv.textContent = ''; // Clear status after successful load
-                break; // Success, exit the retry loop
-
-            } catch (error) {
-                console.error(`Attempt ${attempt + 1} failed:`, error.message);
-                if (attempt < MAX_RETRIES - 1) {
-                    statusDiv.textContent = `Loading error. New attempt in a moment...`;
-                    await delay(attempt);
-                } else {
-                    statusDiv.textContent = 'Loading failed after several attempts. Please try again later.';
-                    loadButton.disabled = false;
-                }
-            }
-        }
+        statusDiv.textContent = '';
         loadButton.disabled = false;
     }
 
     /**
-     * API request to get a random page title.
-     * @param {string} apiUrl The Wikipedia API URL to use.
-     * @param {number} attempt The attempt number.
-     * @returns {Promise<string|null>} The article title or null on failure.
+     * Starts the fetch process and transitions to reading upon success
      */
-    async function fetchRandomTitle(apiUrl, attempt) {
+    async function startReadingSession() {
+        statusDiv.textContent = 'Loading article...';
+        loadButton.disabled = true;
+
+        const apiUrl = `https://${languageSelect.value}.wikipedia.org/w/api.php`;
+        const charLimit = parseInt(wordSlider.value);
+
+        try {
+            // Retry logic
+            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                try {
+                    const title = await fetchRandomTitle(apiUrl);
+                    if (!title) throw new Error("No title found");
+
+                    const content = await fetchArticleContent(apiUrl, title, charLimit);
+                    if (!content) throw new Error("No content found");
+
+                    // Success!
+                    currentArticleTitle = title;
+                    currentArticleContent = content;
+
+                    // Display for reading phase
+                    processAndDisplayContent(title, content);
+                    statusDiv.textContent = '';
+                    loadButton.disabled = false;
+
+                    transitionTo(AppState.READING);
+                    return; // Exit function
+
+                } catch (innerError) {
+                    console.warn(`Attempt ${attempt + 1} failed:`, innerError);
+                    if (attempt === MAX_RETRIES - 1) throw innerError;
+                    await delay(attempt);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to load article:", error);
+            statusDiv.textContent = 'Failed to load article. Please try again.';
+            loadButton.disabled = false;
+        }
+    }
+
+    // === API HELPERS (Refactored) ===
+
+    async function fetchRandomTitle(apiUrl) {
         const params = new URLSearchParams({
             ...API_PARAMS,
             list: 'random',
@@ -122,86 +207,57 @@ document.addEventListener('DOMContentLoaded', () => {
             rnlimit: 1
         });
 
-        const url = `${apiUrl}?${params.toString()}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
+        const response = await fetch(`${apiUrl}?${params.toString()}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        const pages = data.query?.random;
-        if (pages && pages.length > 0) {
-            return pages[0].title;
-        }
-        return null;
+        return data.query?.random?.[0]?.title || null;
     }
 
-    /**
-     * API request to get raw content of an article.
-     * @param {string} apiUrl The Wikipedia API URL to use.
-     * @param {string} title The article title to retrieve.
-     * @param {number} attempt The attempt number.
-     * @returns {Promise<string|null>} The text content or null.
-     */
     async function fetchArticleContent(apiUrl, title, charLimit) {
         const params = new URLSearchParams({
             ...API_PARAMS,
             prop: 'extracts',
             titles: title,
-            // The key parameter: returns plain text without HTML/Wiki tags
             explaintext: 1,
-            redirects: 1, // Follow redirects
-            // Use the user-specified character limit
-            exchars: charLimit
+            redirects: 1,
+            exchars: charLimit,
+            exintro: 1 // Optional: Get just the intro or leave to get more
         });
 
-        const url = `${apiUrl}?${params.toString()}`;
-        console.log('API URL:', url);
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
+        const response = await fetch(`${apiUrl}?${params.toString()}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        console.log('Full API response:', data);
-
         const pages = data.query?.pages;
+        if (!pages) return null;
 
-        if (pages) {
-            const pageId = Object.keys(pages)[0];
-            const page = pages[pageId];
-            console.log('Page data:', page);
-
-            return page.extract || null;
-        }
-        return null;
+        const pageId = Object.keys(pages)[0];
+        return pages[pageId].extract || null;
     }
 
-    /**
-     * Processes raw text and displays it.
-     * @param {string} title The article title.
-     * @param {string} rawContent The raw text content.
-     */
     function processAndDisplayContent(title, rawContent) {
-        // Remove empty lines, excessive line breaks, and reference brackets
+        // Clean text
         let cleanedText = rawContent
-            .replace(/\n\s*\n/g, '\n\n') // Replace multiple line breaks with two
-            .replace(/\[\d+\]/g, '')     // Remove references ([1], [2], etc.)
+            .replace(/\n\s*\n/g, '\n\n')
+            .replace(/\[\d+\]/g, '')
             .trim();
 
-        // Remove the first line if it's the article title repeated (often the case)
         if (cleanedText.startsWith(title)) {
             cleanedText = cleanedText.substring(cleanedText.indexOf('\n') + 1).trim();
         }
 
-        // Display
+        // Store cleaned version as the "official" content for this session
+        currentArticleContent = cleanedText;
+
         titleDiv.textContent = title;
         textDiv.textContent = cleanedText;
     }
 
-    // Bind the function to the button
-    loadButton.addEventListener('click', fetchRandomArticle);
+    function delay(attempt) {
+        return new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
+    }
 
+    // Init
+    updateFromSlider();
 });
