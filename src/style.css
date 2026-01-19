@@ -44,54 +44,6 @@ h1 {
     min-width: 150px;
 }
 
-/* Style for word count slider */
-.word-count-slider {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.word-count-slider label {
-    font-weight: bold;
-    color: #555;
-    display: block;
-    margin-bottom: 10px;
-}
-
-#wordSlider {
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-    display: block;
-}
-
-#wordCountDisplay {
-    color: #007bff;
-    font-weight: bold;
-    width: 60px;
-    text-align: center;
-    border: 1px solid transparent;
-    background: transparent;
-    font-size: inherit;
-    font-family: inherit;
-    padding: 2px 4px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#wordCountDisplay:hover {
-    border-color: #ccc;
-    background: #f8f9fa;
-}
-
-#wordCountDisplay:focus {
-    border-color: #007bff;
-    background: #fff;
-    outline: none;
-}
-
 button {
     display: block;
     width: 100%;

@@ -17,8 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const textDiv = document.getElementById('text');
     const statusDiv = document.getElementById('status');
     const languageSelect = document.getElementById('languageSelect');
-    const wordSlider = document.getElementById('wordSlider');
-    const wordCountDisplay = document.getElementById('wordCountDisplay');
     const recallInput = document.getElementById('recallInput');
     const finishRecallButton = document.getElementById('finishRecallButton');
     const originalTextDisplay = document.getElementById('originalTextDisplay');
@@ -57,19 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === EVENT LISTENERS ===
 
-    // Slider & Input Sync
-    function updateFromSlider() { wordCountDisplay.value = wordSlider.value; }
-    function updateFromInput() {
-        let value = parseInt(wordCountDisplay.value) || 0;
-        const min = parseInt(wordSlider.min);
-        const max = parseInt(wordSlider.max);
-        value = Math.max(min, Math.min(max, value));
-        wordCountDisplay.value = value;
-        wordSlider.value = value;
-    }
-    wordSlider.addEventListener('input', updateFromSlider);
-    wordCountDisplay.addEventListener('input', updateFromInput);
-    wordCountDisplay.addEventListener('blur', updateFromInput);
 
     // Buttons
     loadButton.addEventListener('click', startReadingSession);
@@ -188,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadButton.disabled = true;
 
         const apiUrl = `https://${languageSelect.value}.wikipedia.org/w/api.php`;
-        const charLimit = parseInt(wordSlider.value);
+        const charLimit = 1200; // Always fetch 1200 characters
 
         try {
             // Retry logic
@@ -367,6 +352,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Init
-    updateFromSlider();
     renderHistory();
 });
