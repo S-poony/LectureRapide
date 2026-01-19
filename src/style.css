@@ -264,20 +264,27 @@ button:hover {
 }
 
 .history-marker {
-    flex: 0 0 auto;
-    background: #f0f4f8;
-    border: 1px solid #d1d9e6;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 10px;
+    min-width: 85px;
     text-align: center;
-    min-width: 80px;
+    flex-shrink: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.history-marker:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .history-marker .attempt-num {
     display: block;
     font-size: 0.75em;
-    color: #888;
-    margin-bottom: 4px;
+    color: #666;
+    margin-bottom: 5px;
 }
 
 .history-marker .score-val {
@@ -288,10 +295,27 @@ button:hover {
 }
 
 .secondary-metrics {
-    display: block;
-    font-size: 0.8em;
+    display: none;
+    /* Hidden by default */
+    font-size: 0.75em;
     color: #888;
-    margin-top: 2px;
+    margin-top: 8px;
+    border-top: 1px dashed #ddd;
+    padding-top: 5px;
+    line-height: 1.4;
+}
+
+.history-marker.expanded .secondary-metrics {
+    display: block;
+}
+
+.score-formula {
+    font-size: 0.85em;
+    color: #777;
+    font-style: italic;
+    margin: 15px 0 5px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
 }
 
 .text-link-btn {

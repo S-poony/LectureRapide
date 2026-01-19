@@ -281,12 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const grade = parseInt(ratingGroup.dataset.selectedValue) || 0;
         if (grade === 0 && readingDuration === 0) return;
 
-        const score = readingDuration > 0 ? (grade / readingDuration) : 0;
+        const charCount = currentArticleContent.length;
+        const score = readingDuration > 0 ? (grade * charCount / readingDuration) : 0;
 
         const session = {
             attempt: sessionHistory.length + 1,
             title: currentArticleTitle,
-            chars: currentArticleContent.length,
+            chars: charCount,
             time: readingDuration,
             grade: grade,
             score: score,
@@ -308,19 +309,31 @@ document.addEventListener('DOMContentLoaded', () => {
         historyTimeline.innerHTML = '';
 
         sessionHistory.forEach(session => {
-            const displayScore = session.score || (session.time > 0 ? session.grade / session.time : 0);
+            // Recalculate if it's the old (grade/time) format
+            let displayScore = session.score || 0;
+            if (displayScore < 10 && session.chars > 0) {
+                displayScore = (session.grade * session.chars) / (session.time || 1);
+            }
             const displayTime = session.time || 0;
+            const displayChars = session.chars || 0;
 
             const marker = document.createElement('div');
             marker.className = 'history-marker';
+            marker.title = "Click to see details";
             marker.innerHTML = `
                 <span class="attempt-num">Attempt ${session.attempt}</span>
-                <span class="score-val">${displayScore.toFixed(2)}</span>
-                <span class="secondary-metrics">
-                    <span class="grade-label">${session.grade}/5</span> • 
-                    <span class="time-label">${displayTime.toFixed(2)}s</span>
-                </span>
+                <span class="score-val">${Math.round(displayScore)}</span>
+                <div class="secondary-metrics">
+                    <div>Grade: ${session.grade}/5</div>
+                    <div>Time: ${displayTime.toFixed(2)}s</div>
+                    <div>Chars: ${displayChars}</div>
+                </div>
             `;
+
+            marker.addEventListener('click', () => {
+                marker.classList.toggle('expanded');
+            });
+
             historyTimeline.appendChild(marker);
         });
 
@@ -331,9 +344,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function downloadHistoryAsCsv() {
         if (sessionHistory.length === 0) return;
 
-        const headers = ['Attempt', 'Date', 'Article', 'Characters', 'Time (s)', 'Grade (out of 5)', 'Score (Grade/Time)'];
+        const headers = ['Attempt', 'Date', 'Article', 'Characters', 'Time (s)', 'Grade (out of 5)', 'Raw Score'];
         const rows = sessionHistory.map(s => {
-            const displayScore = s.score || (s.time > 0 ? s.grade / s.time : 0);
+            let displayScore = s.score || 0;
+            if (displayScore < 10 && s.chars > 0) {
+                displayScore = (s.grade * s.chars) / (s.time || 1);
+            }
             const displayTime = s.time || 0;
             return [
                 s.attempt,
@@ -342,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 s.chars,
                 displayTime.toFixed(2),
                 s.grade,
-                displayScore.toFixed(4)
+                displayScore.toFixed(0)
             ];
         });
 
