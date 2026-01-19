@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const restartButton = document.getElementById('restartButton');
     const starRatings = document.querySelectorAll('.star-rating');
     const readingTimeMessage = document.getElementById('readingTimeMessage');
+    const historySection = document.getElementById('history-section');
+    const historyTimeline = document.getElementById('history-timeline');
+    const downloadCsvButton = document.getElementById('downloadCsvButton');
 
     // === STATE ===
     const AppState = {
@@ -41,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentArticleTitle = '';
     let currentArticleContent = '';
     let startTime = 0;
+    let readingDuration = 0;
+    let sessionHistory = JSON.parse(localStorage.getItem('readingSessionHistory') || '[]');
 
     // === CONFIG ===
     const API_PARAMS = {
@@ -78,9 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     restartButton.addEventListener('click', () => {
+        saveSession();
         resetApp();
         transitionTo(AppState.SETUP);
     });
+
+    downloadCsvButton.addEventListener('click', downloadHistoryAsCsv);
 
     // Keyboard Navigation (Space to finish reading)
     document.addEventListener('keydown', (e) => {
@@ -148,8 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo(0, 0);
         } else if (newState === AppState.RECALL) {
             const endTime = Date.now();
-            const seconds = Math.round((endTime - startTime) / 1000);
-            readingTimeMessage.textContent = `You read the text in ${seconds} seconds, write everything you remember now`;
+            readingDuration = (endTime - startTime) / 1000;
+            readingTimeMessage.textContent = `You read the text in ${readingDuration.toFixed(2)} seconds, write everything you remember now`;
 
             recallInput.value = ''; // Clear previous input
             recallInput.focus();
@@ -278,6 +286,87 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
     }
 
+    /**
+     * Records the current session data and updates historical view
+     */
+    function saveSession() {
+        const grade = parseInt(ratingGroup.dataset.selectedValue) || 0;
+        if (grade === 0 && readingDuration === 0) return;
+
+        const score = readingDuration > 0 ? (grade / readingDuration) : 0;
+
+        const session = {
+            attempt: sessionHistory.length + 1,
+            title: currentArticleTitle,
+            chars: currentArticleContent.length,
+            time: readingDuration,
+            grade: grade,
+            score: score,
+            timestamp: new Date().toLocaleString()
+        };
+
+        sessionHistory.push(session);
+        localStorage.setItem('readingSessionHistory', JSON.stringify(sessionHistory));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        if (sessionHistory.length === 0) {
+            historySection.classList.add('hidden');
+            return;
+        }
+
+        historySection.classList.remove('hidden');
+        historyTimeline.innerHTML = '';
+
+        sessionHistory.forEach(session => {
+            const displayScore = session.score || (session.time > 0 ? session.grade / session.time : 0);
+            const displayTime = session.time || 0;
+
+            const marker = document.createElement('div');
+            marker.className = 'history-marker';
+            marker.innerHTML = `
+                <span class="attempt-num">Attempt ${session.attempt}</span>
+                <span class="score-val">${displayScore.toFixed(2)}</span>
+                <span class="secondary-metrics">
+                    <span class="grade-label">${session.grade}/5</span> • 
+                    <span class="time-label">${displayTime.toFixed(2)}s</span>
+                </span>
+            `;
+            historyTimeline.appendChild(marker);
+        });
+
+        // Scroll to the end of the timeline
+        historyTimeline.scrollLeft = historyTimeline.scrollWidth;
+    }
+
+    function downloadHistoryAsCsv() {
+        if (sessionHistory.length === 0) return;
+
+        const headers = ['Attempt', 'Date', 'Article', 'Characters', 'Time (s)', 'Grade (out of 5)', 'Score (Grade/Time)'];
+        const rows = sessionHistory.map(s => [
+            s.attempt,
+            `"${s.timestamp}"`,
+            `"${s.title}"`,
+            s.chars,
+            s.time.toFixed(2),
+            s.grade,
+            s.score.toFixed(4)
+        ]);
+
+        const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "speed_reading_progress.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     // Init
     updateFromSlider();
+    renderHistory();
 });

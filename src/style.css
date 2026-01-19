@@ -288,3 +288,76 @@ button:hover {
 .star-rating span.active {
     color: #ffc107;
 }
+
+/* HISTORY SECTION */
+#history-section {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.history-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #666;
+}
+
+#history-timeline {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 5px;
+    scrollbar-width: thin;
+}
+
+.history-marker {
+    flex: 0 0 auto;
+    background: #f0f4f8;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.history-marker .attempt-num {
+    display: block;
+    font-size: 0.75em;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.history-marker .score-val {
+    display: block;
+    font-weight: bold;
+    color: #007bff;
+    font-size: 1.4em;
+}
+
+.secondary-metrics {
+    display: block;
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 2px;
+}
+
+.text-link-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 0;
+}
+
+.text-link-btn:hover {
+    color: #0056b3;
+}
