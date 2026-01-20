@@ -178,6 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTranslations(lang) {
         const langData = translations[lang] || translations.en;
 
+        // Handle RTL
+        document.body.dir = langData.rtl ? 'rtl' : 'ltr';
+
         // Update all elements with data-i18n
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
