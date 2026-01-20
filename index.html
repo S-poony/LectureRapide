@@ -10,13 +10,13 @@
 <body>
 
     <div class="container">
-        <h1>Speed Reading Training</h1>
+        <h1 data-i18n="appTitle">Speed Reading Training</h1>
 
         <!-- PHASE 1: SETUP -->
         <div id="setup-phase">
             <!-- Language dropdown selector -->
             <div class="language-selector">
-                <label for="languageSelect">Language:</label>
+                <label for="languageSelect" data-i18n="languageLabel">Language:</label>
                 <select id="languageSelect">
                     <!-- Options populated by JS or static HTML -->
                     <option value="en">English</option>
@@ -36,17 +36,17 @@
 
             <!-- Always using 1200 characters limit -->
 
-            <button id="loadButton" class="primary-btn">Start</button>
+            <button id="loadButton" class="primary-btn" data-i18n="startButton">Start</button>
             <div id="status"></div>
 
             <div id="history-section" class="hidden">
                 <div class="history-header">
-                    <h3>Your Progress</h3>
+                    <h3 data-i18n="historyTitle">Your Progress</h3>
                 </div>
                 <div id="history-timeline"></div>
                 <div class="history-footer">
-                    <p class="score-formula">Score = (Grade × Characters) / Time</p>
-                    <button id="downloadCsvButton" class="text-link-btn">Download CSV</button>
+                    <p class="score-formula" data-i18n="scoreFormula">Score = (Grade × Characters) / Time</p>
+                    <button id="downloadCsvButton" class="text-link-btn" data-i18n="downloadCsv">Download CSV</button>
                 </div>
             </div>
         </div>
@@ -54,49 +54,53 @@
         <!-- PHASE 2: READING -->
         <div id="reading-phase" class="hidden">
             <div class="phase-header">
-                <h2>Read the text carefully</h2>
+                <h2 data-i18n="readingPhaseTitle">Read the text carefully</h2>
             </div>
             <div id="content">
                 <div id="title"></div>
                 <div id="text"></div>
             </div>
-            <button id="doneReadingButton" class="primary-btn" title="Shortcut: Press SPACE">I am
+            <button id="doneReadingButton" class="primary-btn" title="Shortcut: Press SPACE"
+                data-i18n="doneReadingButton">I am
                 done reading</button>
         </div>
 
         <div id="recall-phase" class="hidden">
             <div class="phase-header">
-                <h2>Recall</h2>
-                <p id="readingTimeMessage">Write everything you remember from the text.</p>
+                <h2 data-i18n="recallPhaseTitle">Recall</h2>
+                <p id="readingTimeMessage" data-i18n="readingTimeMessage">Write everything you remember from the text.
+                </p>
             </div>
-            <textarea id="recallInput" placeholder="Start typing here..."></textarea>
-            <button id="finishRecallButton" class="primary-btn">I'm done writing</button>
+            <textarea id="recallInput" data-i18n-attr="placeholder:recallPlaceholder"
+                placeholder="Start typing here..."></textarea>
+            <button id="finishRecallButton" class="primary-btn" data-i18n="finishRecallButton">I'm done writing</button>
         </div>
 
         <!-- PHASE 4: COMPARE -->
         <div id="compare-phase" class="hidden">
             <div class="phase-header">
-                <h2>Comparison</h2>
-                <p>Compare your recall with the original text.</p>
+                <h2 data-i18n="comparePhaseTitle">Comparison</h2>
+                <p data-i18n="comparePhaseDescription">Compare your recall with the original text.</p>
             </div>
             <div class="comparison-container">
                 <div class="comparison-column">
-                    <h3>Original Text</h3>
+                    <h3 data-i18n="originalTextTitle">Original Text</h3>
                     <div id="originalTextDisplay"></div>
                 </div>
                 <div class="comparison-column">
-                    <h3>Your Recall</h3>
+                    <h3 data-i18n="userRecallTitle">Your Recall</h3>
                     <div id="userRecallDisplay"></div>
                 </div>
             </div>
-            <button id="goToScoreButton" class="primary-btn">Continue to Self-Assessment</button>
+            <button id="goToScoreButton" class="primary-btn" data-i18n="continueToScoreButton">Continue to
+                Self-Assessment</button>
         </div>
 
         <!-- PHASE 5: SCORE -->
         <div id="score-phase" class="hidden">
             <div class="phase-header">
-                <h2>Self Assessment</h2>
-                <p>How well did you remember the text?</p>
+                <h2 data-i18n="scorePhaseTitle">Self Assessment</h2>
+                <p data-i18n="scorePhaseDescription">How well did you remember the text?</p>
             </div>
 
             <div class="score-container">
@@ -109,7 +113,7 @@
                 </div>
             </div>
 
-            <button id="restartButton" class="primary-btn">Start New Exercise</button>
+            <button id="restartButton" class="primary-btn" data-i18n="restartButton">Start New Exercise</button>
         </div>
     </div>
 

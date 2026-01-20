@@ -1,4 +1,5 @@
 import './style.css';
+import { translations } from './i18n.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // === DOM ELEMENTS ===
@@ -44,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let startTime = 0;
     let readingDuration = 0;
     let sessionHistory = JSON.parse(localStorage.getItem('readingSessionHistory') || '[]');
+    let currentLanguage = localStorage.getItem('appLanguage') || languageSelect.value;
+
+    // Set initial language
+    languageSelect.value = currentLanguage;
 
     // === CONFIG ===
     const API_PARAMS = {
@@ -73,7 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
         transitionTo(AppState.SETUP);
     });
 
+    languageSelect.addEventListener('change', (e) => {
+        currentLanguage = e.target.value;
+        localStorage.setItem('appLanguage', currentLanguage);
+        updateTranslations(currentLanguage);
+    });
+
     downloadCsvButton.addEventListener('click', downloadHistoryAsCsv);
+
+    // Initial translation
+    updateTranslations(currentLanguage);
 
     // Keyboard Navigation (Space to finish reading)
     document.addEventListener('keydown', (e) => {
@@ -143,7 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (newState === AppState.RECALL) {
             const endTime = Date.now();
             readingDuration = (endTime - startTime) / 1000;
-            readingTimeMessage.textContent = `You read the text in ${readingDuration.toFixed(2)} seconds, write everything you remember now`;
+
+            const template = translations[currentLanguage].readingTimeMessage;
+            readingTimeMessage.textContent = template.replace('{time}', readingDuration.toFixed(2));
 
             recallInput.value = ''; // Clear previous input
             recallInput.focus();
@@ -159,6 +175,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateTranslations(lang) {
+        const langData = translations[lang] || translations.en;
+
+        // Update all elements with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (langData[key]) {
+                el.textContent = langData[key];
+            }
+        });
+
+        // Update attributes (like placeholder)
+        document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+            const attrData = el.getAttribute('data-i18n-attr');
+            const [attr, key] = attrData.split(':');
+            if (langData[key]) {
+                el.setAttribute(attr, langData[key]);
+            }
+        });
+
+        // Refresh history if already loaded
+        renderHistory();
+    }
+
     function resetApp() {
         currentArticleTitle = '';
         currentArticleContent = '';
@@ -172,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Starts the fetch process and transitions to reading upon success
      */
     async function startReadingSession() {
-        statusDiv.textContent = 'Loading article...';
+        statusDiv.textContent = translations[currentLanguage].statusLoading;
         loadButton.disabled = true;
 
         const apiUrl = `https://${languageSelect.value}.wikipedia.org/w/api.php`;
@@ -208,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error("Failed to load article:", error);
-            statusDiv.textContent = 'Failed to load article. Please try again.';
+            statusDiv.textContent = translations[currentLanguage].statusError;
             loadButton.disabled = false;
         }
     }
@@ -317,16 +357,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const displayTime = session.time || 0;
             const displayChars = session.chars || 0;
 
+            const langData = translations[currentLanguage] || translations.en;
             const marker = document.createElement('div');
             marker.className = 'history-marker';
             marker.title = "Click to see details";
             marker.innerHTML = `
-                <span class="attempt-num">Attempt ${session.attempt}</span>
+                <span class="attempt-num">${langData.attemptLabel.replace('{num}', session.attempt)}</span>
                 <span class="score-val">${Math.round(displayScore)}</span>
                 <div class="secondary-metrics">
-                    <div>Grade: ${session.grade}/5</div>
-                    <div>Time: ${displayTime.toFixed(2)}s</div>
-                    <div>Chars: ${displayChars}</div>
+                    <div>${langData.gradeLabel} ${session.grade}/5</div>
+                    <div>${langData.timeLabel} ${displayTime.toFixed(2)}s</div>
+                    <div>${langData.charsLabel} ${displayChars}</div>
                 </div>
             `;
 
@@ -344,7 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function downloadHistoryAsCsv() {
         if (sessionHistory.length === 0) return;
 
-        const headers = ['Attempt', 'Date', 'Article', 'Characters', 'Time (s)', 'Grade (out of 5)', 'Raw Score'];
+        const langData = translations[currentLanguage] || translations.en;
+        const headers = langData.csvHeaders;
         const rows = sessionHistory.map(s => {
             let displayScore = s.score || 0;
             if (displayScore < 10 && s.chars > 0) {
